@@ -3,6 +3,7 @@
  * LGPL version 2.1 Copyright 2021 Yoshino Taro
  */
 #include "BmpImageMod.h"
+#define BRD_DEBUG
 #ifdef BRD_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -207,8 +208,15 @@ BmpImageMod::BMP_IMAGE_PIX_FMT BmpImageMod::begin(BmpImageMod::BMP_IMAGE_PIX_FMT
   DEBUG_PRINTF("fmt %d width %d height %d\n",fmt ,width ,height);
   if (fmt == BMP_IMAGE_NONE || width == 0 || height == 0 || img == '\0') 
     return BMP_IMAGE_NONE;
-   
-  m_biSizeImage = width*height*fmt;
+
+  int lineBytes = width * fmt;
+  int lineMod = lineBytes % 4; // Line ごとに 4 Byte ALign にする必要がある
+  int padding = 4 - lineMod;
+  if (padding != 0) {
+    lineBytes += padding;
+    DEBUG_PRINTF("need padding %d bytes, lineBytes is %d\n", padding, lineBytes);    
+  }
+  m_biSizeImage = height * lineBytes;
   DEBUG_PRINTF("biSizeImage: %d\n", m_biSizeImage);
   if (fmt == BMP_IMAGE_RGB565) {
     m_bfOffBits = HEADER_SIZE + MASK_SIZE;
@@ -332,12 +340,23 @@ BmpImageMod::BMP_IMAGE_PIX_FMT BmpImageMod::begin(BmpImageMod::BMP_IMAGE_PIX_FMT
   }
 
   /* copy image content to bitmap container */
-  if (reverse == false) memcpy(m_img_buff, img, m_biSizeImage);
-  else {
+  if (reverse == false) {
+    for (int y = 0; y < height; ++y) {
+      memcpy(m_img_buff + y * (width * fmt + padding), img + y * width * fmt, width * fmt);
+      if (padding != 0) {
+        // padding
+        memset(m_img_buff + y * (width * fmt + padding) + width * fmt, 0, padding);
+      }
+    }
+  } else {
     int n = 0;
     for (int y = height - 1; y >= 0; --y, ++n) {
       for (int x = 0; x < width; ++x) {
-        m_img_buff[width*y + x]  = img[width*n + x];
+          m_img_buff[y * (width * fmt + padding) + x * fmt] = img[n * width * fmt + x * fmt];
+      }
+      if (padding != 0) {
+        // padding
+        memset(m_img_buff + y * (width * fmt + padding) + width * fmt, 0, padding);
       }
     }
   }

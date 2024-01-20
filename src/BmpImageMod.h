@@ -2,8 +2,8 @@
  * Simple bitmap image library for Arduino
  * LGPL version 2.1 Copyright 2021 Yoshino Taro
  */
-#ifndef __SPRESENSE_BMP_IMAGE_CLASS_H__
-#define __SPRESENSE_BMP_IMAGE_CLASS_H__
+#ifndef __SPRESENSE_BMP_IMAGE_MOD_CLASS_H__
+#define __SPRESENSE_BMP_IMAGE_MOD_CLASS_H__
 #include <stdint.h>
 #include <stdlib.h>
 #include <File.h>
@@ -84,4 +84,4 @@ public:
 };
 
 
-#endif // __SPRESENSE_BMP_IMAGE_CALSS_H__
+#endif // __SPRESENSE_BMP_IMAGE_MOD_CALSS_H__
