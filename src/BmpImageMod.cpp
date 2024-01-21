@@ -3,7 +3,6 @@
  * LGPL version 2.1 Copyright 2021 Yoshino Taro
  */
 #include "BmpImageMod.h"
-#define BRD_DEBUG
 #ifdef BRD_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
